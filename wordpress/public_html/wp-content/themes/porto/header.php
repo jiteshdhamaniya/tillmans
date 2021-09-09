@@ -8,6 +8,7 @@
 
 
 	<link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
+	<script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
 
 	<?php get_template_part( 'head' ); ?>
 </head>

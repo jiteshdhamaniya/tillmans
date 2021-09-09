@@ -1437,6 +1437,8 @@ add_filter( 'woocommerce_dropdown_variation_attribute_options_html', 'porto_wooc
 function porto_woocommerce_dropdown_variation_attribute_options_html( $select_html, $args ) {
 	global $porto_settings;
 
+	// var_dump( $args );
+
 	$args      = wp_parse_args(
 		apply_filters( 'woocommerce_dropdown_variation_attribute_options_args', $args ),
 		array(
@@ -1451,6 +1453,7 @@ function porto_woocommerce_dropdown_variation_attribute_options_html( $select_ht
 		)
 	);
 	$options   = $args['options'];
+	$children = $args['product']->get_children();
 	$product   = $args['product'];
 	$attribute = $args['attribute'];
 
@@ -1509,8 +1512,25 @@ function porto_woocommerce_dropdown_variation_attribute_options_html( $select_ht
 		$swatch_options = $product->get_meta( 'swatch_options', true );
 		$key            = md5( sanitize_title( $attribute ) );
 
-		$html .= '<ul class="filter-item-list" name="' . esc_attr( $name ) . '">';
+		// $html .= '<div name="' . esc_attr( $name ) . '" id="product_variations" class="filter-item-list flex bg-gray-100 rounded p-2 space-x-1">';
+
+		// <div class="bg-white border-2 border-[#40a251] rounded w-1/3 text-center p-2 space-y-2">
+		// 	<p class="text-[#40a251]">Single Bottle</p>
+		// 	<p>$195</p>
+		// </div>
+		// <div class="hover:bg-white hover:border rounded w-1/3 text-center p-2">
+		// 	<p class="text-[#40a251]">Single Bottle</p>
+		// 	<p>$195</p>
+		// </div>
+		// <div class="hover:bg-white hover:border rounded w-1/3 text-center p-2">
+		// 	<p class="text-[#40a251]">Single Bottle</p>
+		// 	<p>$195</p>
+		// </div>
+		// </div>
+
+		$html .= '<ul class="filter-item-list flex bg-gray-100 rounded p-2 space-x-1" name="' . esc_attr( $name ) . '">';
 		if ( $product ) {
+
 			$select_html  = '<select id="' . esc_attr( $id ) . '" class="' . esc_attr( $class ) . '" name="' . esc_attr( $name ) . '" data-attribute_name="attribute_' . esc_attr( sanitize_title( $attribute ) ) . '" data-show_option_none="' . ( $show_option_none ? 'yes' : 'no' ) . '">';
 			$select_html .= '<option value=""></option>';
 
@@ -1519,6 +1539,7 @@ function porto_woocommerce_dropdown_variation_attribute_options_html( $select_ht
 			if ( taxonomy_exists( $attribute ) ) {
 				// Get terms if this is a taxonomy - ordered. We need the names too.
 				$terms = wc_get_product_terms( $product->get_id(), $attribute, array( 'fields' => 'all' ) );
+				// var_dump( $terms, "sdfmhdskfdfgdjskfg" );
 				foreach ( $terms as $term ) {
 					if ( in_array( $term->slug, $options ) ) {
 						$attribute_terms[] = array(
@@ -1526,15 +1547,18 @@ function porto_woocommerce_dropdown_variation_attribute_options_html( $select_ht
 							'slug'    => $term->slug,
 							'label'   => $term->name,
 							'term_id' => $term->term_id,
+							'price' => $product->get_price(),
 						);
 					}
 				}
 			} else {
+				// var_dump( $options, "sdfmhdskfdfgdjskfg" );
 				foreach ( $options as $term ) {
 					$attribute_terms[] = array(
 						'id'    => ( md5( sanitize_title( strtolower( $term ) ) ) ),
 						'slug'  => esc_html( $term ),
 						'label' => esc_html( $term ),
+						'price' => $product->get_price(),
 					);
 				}
 			}
@@ -1550,56 +1574,87 @@ function porto_woocommerce_dropdown_variation_attribute_options_html( $select_ht
 				$image_size = isset( $swatch_options[ $key ]['size'] ) ? $swatch_options[ $key ]['size'] : 'swatches_image_size';
 			}
 
-			foreach ( $attribute_terms as $term ) {
-				$color_value = '';
-				if ( isset( $term['term_id'] ) ) {
-					$color_value = get_term_meta( $term['term_id'], 'color_value', true );
+			if($children){
+				foreach ( $children as $child ) {
+
+				// 	// die(var_dump(wc_get_product($child)->get_slug()));
+
+					$var_product = wc_get_product($child);
+					$label = trim(explode(":",$var_product->attribute_summary)[1]);
+					$price = $var_product->get_price();
+					$slug = $label;
+
+						$a_class = 'filter-item';
+						if ( 'label' == $attr_type ) {
+							$a_attrs     = ' title="' . esc_attr( apply_filters( 'woocommerce_variation_option_name', $label ) ) . '"';
+							$label_value = get_term_meta( $label, 'label_value', true );
+						} else {
+							$a_attrs = '';
+						}
+						$option_attrs = '';
+
+						$select_html .= '<option' . $option_attrs . ' value="' . esc_attr( $slug ) . '" ' . selected( sanitize_title( $args['selected'] ),  $slug, false ) . '>' . esc_html( apply_filters( 'woocommerce_variation_option_name', $label ) ) . '</option>';
+						$html .= '<li class="bg-white border-2 rounded w-1/3 text-center p-2 space-y-2">';
+						$html .= '<a href="#" class="block ' . $a_class . '
+						" data-value="' . esc_attr( $slug ) . '" ' . ( sanitize_title( $args['selected'] ) ==  $slug ? ' class="active"' : '' ) . $a_attrs . '>' . esc_html( 'label' == $attr_type && $label_value ? $label_value : apply_filters( 'woocommerce_variation_option_name', $label ) );
+						$html .= "<p class='text-black'>". get_woocommerce_currency_symbol().$price ."</p>"  . '</a>';
+						$html .= '</li>';
 				}
 
-				if ( ( ! isset( $color_value ) || ! $color_value ) && isset( $swatch_options[ $key ] ) && isset( $swatch_options[ $key ]['attributes'][ $term['id'] ]['color'] ) ) {
-					$color_value = $swatch_options[ $key ]['attributes'][ $term['id'] ]['color'];
-				}
-				$current_attribute_image_src = '';
-				if ( 'image' == $attr_type && isset( $swatch_options[ $key ]['attributes'][ $term['id'] ]['image'] ) ) {
-					$current_attribute_image_id = $swatch_options[ $key ]['attributes'][ $term['id'] ]['image'];
-					if ( $current_attribute_image_id ) {
-						$current_attribute_image_src = wp_get_attachment_image_src( $current_attribute_image_id, $image_size );
-						$current_attribute_image_src = $current_attribute_image_src[0];
-					}
-				}
-
-				if ( 'color' == $attr_type ) {
-					$a_class      = 'filter-color';
-					$option_attrs = ' data-color="' . esc_attr( $color_value ) . '"';
-					$a_attrs      = ' title="' . esc_attr( apply_filters( 'woocommerce_variation_option_name', $term['label'] ) ) . '" style="background-color: ' . esc_attr( $color_value ) . '"';
-				} elseif ( 'image' == $attr_type ) {
-					$a_class      = 'filter-item filter-image';
-					$option_attrs = ' data-image="' . esc_url( $current_attribute_image_src ) . '"';
-					if ( $current_attribute_image_src ) {
-						$a_attrs = ' style="background-image: url(' . esc_url( $current_attribute_image_src ) . ')"';
-					} else {
-						$a_attrs = '';
-					}
-				} else {
-					$a_class = 'filter-item';
-					if ( 'label' == $attr_type ) {
-						$a_attrs     = ' title="' . esc_attr( apply_filters( 'woocommerce_variation_option_name', $term['label'] ) ) . '"';
-						$label_value = get_term_meta( $term['term_id'], 'label_value', true );
-					} else {
-						$a_attrs = '';
-					}
-					$option_attrs = '';
-				}
-
-				$select_html .= '<option' . $option_attrs . ' value="' . esc_attr( $term['slug'] ) . '" ' . selected( sanitize_title( $args['selected'] ), $term['slug'], false ) . '>' . esc_html( apply_filters( 'woocommerce_variation_option_name', $term['label'] ) ) . '</option>';
-
-				$html     .= '<li>';
-					$html .= '<a href="#" class="' . $a_class . '" data-value="' . esc_attr( $term['slug'] ) . '" ' . ( sanitize_title( $args['selected'] ) == $term['slug'] ? ' class="active"' : '' ) . $a_attrs . '>' . esc_html( 'label' == $attr_type && $label_value ? $label_value : apply_filters( 'woocommerce_variation_option_name', $term['label'] ) ) . '</a>';
-				$html     .= '</li>';
 			}
+			else{
+				 foreach ( $attribute_terms as $term ) {
+					// var_dump($term);
+					$color_value = '';
+					if ( isset( $term['term_id'] ) ) {
+						$color_value = get_term_meta( $term['term_id'], 'color_value', true );
+					}
+
+					if ( ( ! isset( $color_value ) || ! $color_value ) && isset( $swatch_options[ $key ] ) && isset( $swatch_options[ $key ]['attributes'][ $term['id'] ]['color'] ) ) {
+						$color_value = $swatch_options[ $key ]['attributes'][ $term['id'] ]['color'];
+					}
+					$current_attribute_image_src = '';
+					if ( 'image' == $attr_type && isset( $swatch_options[ $key ]['attributes'][ $term['id'] ]['image'] ) ) {
+						$current_attribute_image_id = $swatch_options[ $key ]['attributes'][ $term['id'] ]['image'];
+						if ( $current_attribute_image_id ) {
+							$current_attribute_image_src = wp_get_attachment_image_src( $current_attribute_image_id, $image_size );
+							$current_attribute_image_src = $current_attribute_image_src[0];
+						}
+					}
+
+					if ( 'color' == $attr_type ) {
+						$a_class      = 'filter-color';
+						$option_attrs = ' data-color="' . esc_attr( $color_value ) . '"';
+						$a_attrs      = ' title="' . esc_attr( apply_filters( 'woocommerce_variation_option_name', $term['label'] ) ) . '" style="background-color: ' . esc_attr( $color_value ) . '"';
+					} elseif ( 'image' == $attr_type ) {
+						$a_class      = 'filter-item filter-image';
+						$option_attrs = ' data-image="' . esc_url( $current_attribute_image_src ) . '"';
+						if ( $current_attribute_image_src ) {
+							$a_attrs = ' style="background-image: url(' . esc_url( $current_attribute_image_src ) . ')"';
+						} else {
+							$a_attrs = '';
+						}
+					} else {
+						$a_class = 'filter-item';
+						if ( 'label' == $attr_type ) {
+							$a_attrs     = ' title="' . esc_attr( apply_filters( 'woocommerce_variation_option_name', $term['label'] ) ) . '"';
+							$label_value = get_term_meta( $term['term_id'], 'label_value', true );
+						} else {
+							$a_attrs = '';
+						}
+						$option_attrs = '';
+					}
+					$select_html .= '<option' . $option_attrs . ' value="' . esc_attr( $term['slug'] ) . '" ' . selected( sanitize_title( $args['selected'] ), $term['slug'], false ) . '>' . esc_html( apply_filters( 'woocommerce_variation_option_name', $term['label'] ) ) . '</option>';
+					$html .= '<li class="bg-white border-2 border-[#40a251] rounded w-1/3 text-center p-2 space-y-2">';
+					$html .= '<a href="#" class="' . $a_class . '" data-value="' . esc_attr( $term['slug'] ) . '" ' . ( sanitize_title( $args['selected'] ) == $term['slug'] ? ' class="active"' : '' ) . $a_attrs . '>' . esc_html( 'label' == $attr_type && $label_value ? $label_value : apply_filters( 'woocommerce_variation_option_name', $term['label'] ) ) . '</a>';
+					$html .= "<p>". $term['price'] ."</p>";
+					$html .= '</li>';				
+				  }
+			    }
 			$select_html .= '</select>';
 		}
 		$html .= '</ul>';
+		// $html .= '</div>';
 	}
 	return $html . $select_html . $attr_description_html;
 }

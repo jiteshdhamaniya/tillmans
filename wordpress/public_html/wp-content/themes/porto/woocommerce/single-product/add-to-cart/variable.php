@@ -42,7 +42,24 @@ do_action( 'woocommerce_before_add_to_cart_form' );
 	<?php if ( empty( $available_variations ) && false !== $available_variations ) : ?>
 		<p class="stock out-of-stock"><?php echo esc_html( apply_filters( 'woocommerce_out_of_stock_message', __( 'This product is currently out of stock and unavailable.', 'woocommerce' ) ) ); ?></p>
 	<?php else : ?>
-		<table class="variations" cellspacing="0">
+
+		<!-- <div id="product_variations" class="flex bg-gray-100 rounded p-2 space-x-1">
+                    <div class="bg-white border-2 border-[#40a251] rounded w-1/3 text-center p-2 space-y-2">
+                        <p class="text-[#40a251]">Single Bottle</p>
+                        <p>$195</p>
+                    </div>
+                    <div class="hover:bg-white hover:border rounded w-1/3 text-center p-2">
+                        <p class="text-[#40a251]">Single Bottle</p>
+                        <p>$195</p>
+                    </div>
+                    <div class="hover:bg-white hover:border rounded w-1/3 text-center p-2">
+                        <p class="text-[#40a251]">Single Bottle</p>
+                        <p>$195</p>
+                    </div>
+                </div>  -->
+				<!-- options -->
+			
+		<table id="product_variations" class="variations w-full" cellspacing="0" style="width:100% !important">
 			<tbody>
 				<?php
 				$loop = 0;
@@ -50,7 +67,7 @@ do_action( 'woocommerce_before_add_to_cart_form' );
 					$loop++;
 					?>
 					<tr>
-						<td class="label"><label for="<?php echo esc_attr( sanitize_title( $attribute_name ) ); ?>"><?php echo wc_attribute_label( $attribute_name ); // WPCS: XSS ok. ?></label></td>
+						<!-- <td class="label"><label for="<?php echo esc_attr( sanitize_title( $attribute_name ) ); ?>"><?php echo wc_attribute_label( $attribute_name ); // WPCS: XSS ok. ?></label></td> -->
 						<?php if ( version_compare( $porto_woo_version, '2.4', '<' ) ) : ?>
 							<td class="value"><select id="<?php echo esc_attr( sanitize_title( $attribute_name ) ); ?>" name="attribute_<?php echo sanitize_title( $attribute_name ); ?>" data-attribute_name="attribute_<?php echo sanitize_title( $attribute_name ); ?>">
 								<option value=""><?php esc_html_e( 'Choose an option', 'porto' ); ?>&hellip;</option>

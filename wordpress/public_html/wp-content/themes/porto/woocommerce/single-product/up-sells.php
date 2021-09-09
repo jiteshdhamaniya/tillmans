@@ -39,11 +39,12 @@ if ( $products->have_posts() ) :
 	if ( ! $porto_woocommerce_loop['columns'] ) {
 		$porto_woocommerce_loop['columns'] = 4;
 	}
+		$porto_woocommerce_loop['columns'] = 4;
 	?>
 
 	<div class="upsells products">
 
-		<h2 class="slider-title"><span class="inline-title"><?php esc_html_e( 'You may also like&hellip;', 'woocommerce' ); ?></span><span class="line"></span></h2>
+		<h2 class="text-2xl"><span class="inline-title"><?php esc_html_e( 'Our Most Trusted Products, Used By Thousands Everyday.', 'woocommerce' ); ?></span><span class="line"></span></h2>
 
 		<div class="slider-wrapper">
 

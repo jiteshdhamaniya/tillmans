@@ -491,7 +491,8 @@ function porto_css() {
 		if ( is_rtl() ) {
 			wp_register_style( 'porto-theme-shop', PORTO_URI . '/css/theme_rtl_shop.css?ver=' . PORTO_VERSION );
 		} else {
-			wp_register_style( 'porto-theme-shop', PORTO_URI . '/css/theme_shop.css?ver=' . PORTO_VERSION );
+			// wp_register_style( 'porto-theme-shop', PORTO_URI . '/css/theme_shop.css?ver=' . PORTO_VERSION );
+			wp_register_style( 'porto-theme-shop', PORTO_URI . '/css/theme_shop.css');			
 		}
 	}
 
@@ -555,7 +556,10 @@ function porto_css() {
 	if ( class_exists( 'bbPress' ) || class_exists( 'BuddyPress' ) ) {
 		wp_enqueue_style( 'porto-theme-bbpress' );
 	}
-	wp_enqueue_style( 'porto-dynamic-style' );
+
+	if(!is_product()) {
+		wp_enqueue_style( 'porto-dynamic-style' );
+	}
 
 	do_action( 'porto_enqueue_css' );
 

@@ -74,7 +74,7 @@ if ( isset( $porto_settings['catalog-enable'] ) && $porto_settings['catalog-enab
 	do_action( 'woocommerce_before_shop_loop_item' );
 	?>
 
-	<div class="product-image">
+	<div class="product-image bg-gray-50">
 
 		<a <?php echo porto_filter_output( $more_target ); ?> href="<?php echo esc_url( $more_link ); ?>">
 			<?php
@@ -97,7 +97,7 @@ if ( isset( $porto_settings['catalog-enable'] ) && $porto_settings['catalog-enab
 
 	<div class="product-content">
 		<?php do_action( 'porto_woocommerce_before_shop_loop_item_title' ); ?>
-
+		
 		<?php
 			/**
 			 * Hook: woocommerce_shop_loop_item_title.
@@ -106,7 +106,10 @@ if ( isset( $porto_settings['catalog-enable'] ) && $porto_settings['catalog-enab
 			 */
 			do_action( 'woocommerce_shop_loop_item_title' );
 		?>
-
+			<div class="py-4">
+				<div class="yotpo bottomLine" data-yotpo-product-id="<?php echo $product->id; ?>"></div>   
+			</div>
+		
 		<?php
 			/**
 			 * Hook: woocommerce_after_shop_loop_item_title.
@@ -115,8 +118,7 @@ if ( isset( $porto_settings['catalog-enable'] ) && $porto_settings['catalog-enab
 			 * @hooked woocommerce_template_loop_price - 10
 			 */
 			do_action( 'woocommerce_after_shop_loop_item_title' );
-		?>
-
+		?>			
 		<?php
 			/**
 			* Hook: woocommerce_after_shop_loop_item.
