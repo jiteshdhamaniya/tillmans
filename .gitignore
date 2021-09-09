@@ -5,6 +5,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+.well-known
+wp-admin
+wp-includes
+wordpress/public_html/wp-content/plugins
+wordpress/public_html/wp-content/backups-dup-lite
+wp-content/uploads
+uploads
+
 # Runtime data
 pids
 *.pid
